@@ -1,4 +1,6 @@
 const Task = require("../models/Task");
+const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
 
 const TaskController = {
   async createTask(req, res) {
@@ -15,7 +17,7 @@ const TaskController = {
       console.error(error);
       res.status(500).json({
         message: "Server error while creating the task",
-        error,
+        error: error.message,
       });
     }
   },
@@ -24,19 +26,34 @@ const TaskController = {
     try {
       const tasks = await Task.find();
 
-      res.status(200).json({ tasks });
+      res.status(200).json({
+        message: "Tasks retrieved successfully",
+        total: tasks.length,
+        tasks,
+      });
     } catch (error) {
       console.error(error);
       res.status(500).send({
         message: "Server error while retriving the tasks",
-        error,
+        error: error.message,
       });
     }
   },
 
   async getTaskById(req, res) {
     try {
-      const task = await Task.findById(req.params.id);
+      const { id } = req.params;
+
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).json({ message: "Invalid Task ID format" });
+      }
+
+      const task = await Task.findById(id);
+
+      if (!task) {
+        return res.status(404).json({ message: "Task not found" });
+      }
+
       res.status(200).json({
         message: "Task found",
         task,
@@ -45,7 +62,38 @@ const TaskController = {
       console.error(error);
       res.status(500).send({
         message: "Server error while finding a task by ID",
-        error,
+        error: error.message,
+      });
+    }
+  },
+
+  async completedTask(req, res) {
+    try {
+      const { id } = req.params;
+
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).json({ message: "Invalid Task ID format" });
+      }
+
+      const task = await Task.findByIdAndUpdate(
+        id,
+        { completed: true },
+        { new: true }
+      );
+
+      if (!task) {
+        return res.status(404).json({ message: "Task not found" });
+      }
+
+      res.status(200).json({
+        message: "Task completed",
+        task,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        message: "Server error while marking task as completed",
+        error: error.message,
       });
     }
   },
