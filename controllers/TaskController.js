@@ -33,6 +33,22 @@ const TaskController = {
       });
     }
   },
+
+  async getTaskById(req, res) {
+    try {
+      const task = await Task.findById(req.params.id);
+      res.status(200).json({
+        message: "Task found",
+        task,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({
+        message: "Server error while finding a task by ID",
+        error,
+      });
+    }
+  },
 };
 
 module.exports = TaskController;
