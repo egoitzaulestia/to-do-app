@@ -1,21 +1,26 @@
 const Task = require("../models/Task");
 
 const TaskController = {
-  async create(req, res) {
+  async createTask(req, res) {
     try {
-      const taks = await Task.create(req.body);
+      const { title } = req.body;
+
+      const task = await Task.create({ title });
+
       res.status(201).json({
         message: "Task created successfully",
         task,
       });
     } catch (error) {
       console.error(error);
-      req.status(500).json({
+      res.status(500).json({
         message: "Server error while creating the task",
-        erro,
+        error,
       });
     }
   },
+
+  async,
 };
 
 module.exports = TaskController;
