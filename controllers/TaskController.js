@@ -67,32 +67,74 @@ const TaskController = {
     }
   },
 
-  async completedTask(req, res) {
+  //   async completedTask(req, res) {
+  //     try {
+  //       const { id } = req.params;
+
+  //       if (!ObjectId.isValid(id)) {
+  //         return res.status(400).json({ message: "Invalid Task ID format" });
+  //       }
+
+  //       const task = await Task.findByIdAndUpdate(
+  //         id,
+  //         { completed: true },
+  //         { new: true }
+  //       );
+
+  //       if (!task) {
+  //         return res.status(404).json({ message: "Task not found" });
+  //       }
+
+  //       res.status(200).json({
+  //         message: "Task completed",
+  //         task,
+  //       });
+  //     } catch (error) {
+  //       console.error(error);
+  //       res.status(500).json({
+  //         message: "Server error while marking task as completed",
+  //         error: error.message,
+  //       });
+  //     }
+  //   },
+
+  async setTaskCompleted(req, res) {
     try {
       const { id } = req.params;
+      const { completed } = req.body; // we send the value by body from the front
 
       if (!ObjectId.isValid(id)) {
-        return res.status(400).json({ message: "Invalid Task ID format" });
+        return res.status(400).json({
+          message: "Invalid Task ID format",
+        });
+      }
+
+      if (typeof completed !== "boolean") {
+        return res.status(400).json({
+          message: "`completed` must be true or false",
+        });
       }
 
       const task = await Task.findByIdAndUpdate(
         id,
-        { completed: true },
+        { completed, $inc: { __v: 1 } },
         { new: true }
       );
 
       if (!task) {
-        return res.status(404).json({ message: "Task not found" });
+        return res.status(404).json({
+          message: "Task not found",
+        });
       }
 
       res.status(200).json({
-        message: "Task completed",
+        message: `Task marked as ${completed ? "completed" : "uncompleted"}`,
         task,
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({
-        message: "Server error while marking task as completed",
+      res.status(200).json({
+        message: "Server error while updating completion",
         error: error.message,
       });
     }
