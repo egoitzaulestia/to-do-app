@@ -8,6 +8,8 @@ const { dbConnection } = require("./config/db");
 
 app.use(express.json());
 
+app.use("/tasks", require("./routes/tasks"));
+
 dbConnection();
 
 app.listen(PORT, () => {
