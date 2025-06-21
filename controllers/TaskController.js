@@ -126,9 +126,7 @@ const TaskController = {
       );
 
       if (!task) {
-        return res.status(404).json({
-          message: "Task not found",
-        });
+        return res.status(404).json({ message: "Task not found" });
       }
 
       res.status(200).json({
@@ -140,6 +138,36 @@ const TaskController = {
       res.status(200).json({
         message: "Server error while updating completion",
         error: error.message,
+      });
+    }
+  },
+
+  async deleteTask(req, res) {
+    try {
+      const { id } = req.params;
+
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).json({
+          message: "Invalid Task ID format",
+        });
+      }
+
+      const task = await Task.findByIdAndDelete(id);
+
+      if (!task) {
+        return res.status(404).json({
+          message: "Task not found",
+        });
+      }
+
+      res.status(200).json({
+        message: "Task deleted successfully",
+        task,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        message: "Server error while deleting the task",
       });
     }
   },
