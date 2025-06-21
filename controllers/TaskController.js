@@ -20,7 +20,19 @@ const TaskController = {
     }
   },
 
-  async,
+  async getAllTask(req, res) {
+    try {
+      const tasks = await Task.find();
+
+      res.status(200).json({ tasks });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({
+        message: "Server error while retriving the tasks",
+        error,
+      });
+    }
+  },
 };
 
 module.exports = TaskController;
